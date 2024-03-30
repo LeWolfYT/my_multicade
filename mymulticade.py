@@ -198,7 +198,7 @@ class Menu():
                 self.window.blit(sur1, (round(menuw/2-sur1.get_width()/2), 8))
             
             if orientation == 0:
-                self.windowr.blit(self.window)
+                self.windowr.blit(self.window, (0, 0))
             elif orientation == 1:
                 self.windowr.blit(pg.transform.rotate(self.window, 180), (0, 0))
             elif orientation == 2:
