@@ -7,14 +7,14 @@ import os
 
 pg.init()
 
-assets_path = "/Users/pj/Downloads/Wolf-Proj/multicade"
+assets_path = "/Users/pj/Downloads/Wolf-Proj/my_multicade"
 mame_path = "/Applications/mame0258-arm64/mame"
 
 #ORIENTATION:
 #0 = normal, use this for desktop
-#1 = flipped
-#2 = horizontal 90 degrees
-#3 = horizontal 270 degrees
+#1 = 180 degrees
+#2 = 90 degrees CCW
+#3 = 90 degrees CW
 #NOTICE! This version of the program is meant for --->>>VERTICAL DISPLAYS!!!<<<---
 orientation = 0
 menuw = 224 #generally, you want to set these to the resolution of your monitor, integer scaled down to roughly 224x288 or something
@@ -43,7 +43,7 @@ timernums = []
 for i in range(10):
     timernums.append(pg.image.load(os.path.join(timerdir, f"timer{i}.png")))
 
-def wait_for_start(window: pg.surface.Surface):
+def wait_for_start(window: pg.surface.Surface, eee):
     while not k.is_pressed(36): #put in your condition for getting the start key or button or something
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -67,6 +67,16 @@ def wait_for_start(window: pg.surface.Surface):
             pg.draw.line(window, (20, 20, 20), (menuw/2 - 40, menuh), (menuw/2 + 40, 0), width = 6)
             pg.draw.line(window, (127, 127, 127), (menuw/2 - 40, menuh), (menuw/2 + 40, 0), width = 4)
             pg.draw.line(window, (180, 180, 180), (menuw/2 - 40, menuh), (menuw/2 + 40, 0), width = 2)
+            
+            if orientation == 0:
+                eee.blit(window, (0, 0))
+            elif orientation == 1:
+                eee.blit(pg.transform.rotate(window, 180), (0, 0))
+            elif orientation == 2:
+                eee.blit(pg.transform.rotate(window, 90), (0, 0))
+            elif orientation == 3:
+                eee.blit(pg.transform.rotate(window, 270), (0, 0))
+            
             pg.display.flip()
     credit.play()
     return True
@@ -107,12 +117,13 @@ class Menu():
     def __init__(self, game1: GameItem, game2: GameItem):
         self.g1 = game1
         self.g2 = game2
-        self.window = pg.display.set_mode((menuw, menuh), (pg.NOFRAME * (not frame)) | pg.SCALED | (pg.FULLSCREEN * fullscreen), vsync=vsync)
+        self.window = pg.surface.Surface((menuw, menuh))
+        self.windowr = pg.display.set_mode((menuw, menuh) if orientation <= 1 else (menuh, menuw), (pg.NOFRAME * (not frame)) | pg.SCALED | (pg.FULLSCREEN * fullscreen), vsync=vsync)
         pg.display.set_caption("My Multicade")
         self.window.fill((0, 0, 0))
     
     def menu(self):
-        if not wait_for_start(self.window):
+        if not wait_for_start(self.window, self.windowr):
             return
         pg.mixer.music.load(music)
         pg.mixer.music.play()
@@ -185,6 +196,15 @@ class Menu():
             else:
                 sur1 = timernums[0]
                 self.window.blit(sur1, (round(menuw/2-sur1.get_width()/2), 8))
+            
+            if orientation == 0:
+                self.windowr.blit(self.window)
+            elif orientation == 1:
+                self.windowr.blit(pg.transform.rotate(self.window, 180), (0, 0))
+            elif orientation == 2:
+                self.windowr.blit(pg.transform.rotate(self.window, 90), (0, 0))
+            elif orientation == 3:
+                self.windowr.blit(pg.transform.rotate(self.window, 270), (0, 0))
             
             pg.display.flip()
             if timer <= -0.5:
