@@ -34,7 +34,6 @@ bg2 = pg.image.load(os.path.join(assets_path, "bg2.png"))
 timerdir = os.path.join(assets_path, "timer/")
 name1 = pg.image.load(os.path.join(assets_path, "name1.png"))
 name2 = pg.image.load(os.path.join(assets_path, "name2.png"))
-font = pg.font.Font(os.path.join(assets_path, "font.ttf")) #replace .ttf with the right file extension
 music = os.path.join(assets_path, "bgm.wav") #same here
 credit = pg.mixer.Sound(os.path.join(assets_path, "credit.wav")) #here too (insert coin sound)
 choose = pg.mixer.Sound(os.path.join(assets_path, "choose.wav")) #don't forget here (choose game sound)
