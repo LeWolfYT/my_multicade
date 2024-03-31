@@ -2,7 +2,7 @@
 
 ![my multicade logo](logobig.png)
 
-a 2-in-1 arcade themed MAME frontend inspired by the iCade 60-in-1 series
+a multicade themed MAME frontend inspired by the iCade 60-in-1 series
 
 ## SETUP
 
