@@ -35,6 +35,7 @@ machine2 = "ncv1"
 bg1 = pg.image.load(os.path.join(assets_path, "bg1.png"))
 bg2 = pg.image.load(os.path.join(assets_path, "bg2.png"))
 timerdir = os.path.join(assets_path, "timer/")
+logo = pg.image.load(os.path.join(assets_path, "logo.png"))
 name1 = pg.image.load(os.path.join(assets_path, "name1.png"))
 name2 = pg.image.load(os.path.join(assets_path, "name2.png"))
 music = os.path.join(assets_path, "bgm.wav") #same here
@@ -74,9 +75,12 @@ def wait_for_start(window: pg.surface.Surface, eee):
             blend3.blit(blend1, (0, 0))
             blend3.blit(blend2, (0, 0), None, pg.BLEND_RGB_ADD)
             window.blit(blend3, (0, 0))
+            
             pg.draw.line(window, (20, 20, 20), (menuw/2 - 40, menuh), (menuw/2 + 40, 0), width = 6)
             pg.draw.line(window, (127, 127, 127), (menuw/2 - 40, menuh), (menuw/2 + 40, 0), width = 4)
             pg.draw.line(window, (180, 180, 180), (menuw/2 - 40, menuh), (menuw/2 + 40, 0), width = 2)
+            
+            window.blit(logo, (0, menuh - logo.get_height()))
             
             if orientation == 0:
                 eee.blit(window, (0, 0))
@@ -129,7 +133,7 @@ class Menu():
         self.g2 = game2
         self.window = pg.surface.Surface((menuw, menuh))
         self.windowr = pg.display.set_mode((menuw, menuh) if orientation <= 1 else (menuh, menuw), (pg.NOFRAME * (not frame)) | pg.SCALED | (pg.FULLSCREEN * fullscreen), vsync=vsync)
-        pg.display.set_caption("My Multicade")
+        pg.display.set_caption("My Multicade (2-in-1)")
         self.window.fill((0, 0, 0))
     
     def menu(self):
@@ -225,6 +229,8 @@ class Menu():
                 else:
                     sur1 = timernums[0]
                     self.window.blit(sur1, (round(menuw/2-sur1.get_width()/2), 8))
+            
+            self.window.blit(logo, (0, menuh - logo.get_height()))
             
             if orientation == 0:
                 self.windowr.blit(self.window, (0, 0))

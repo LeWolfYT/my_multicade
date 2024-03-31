@@ -41,6 +41,7 @@ bg2 = pg.image.load(os.path.join(assets_path, "bg2.png"))
 bg3 = pg.image.load(os.path.join(assets_path, "bg3.png"))
 bg4 = pg.image.load(os.path.join(assets_path, "bg4.png"))
 timerdir = os.path.join(assets_path, "timer/")
+logo = pg.image.load(os.path.join(assets_path, "logo.png"))
 name1 = pg.image.load(os.path.join(assets_path, "name1.png"))
 name2 = pg.image.load(os.path.join(assets_path, "name2.png"))
 name3 = pg.image.load(os.path.join(assets_path, "name3.png"))
@@ -90,11 +91,13 @@ def wait_for_start(window: pg.surface.Surface, eee):
             
             window.blit(blend5, (0, 0))
             pg.draw.line(window, (20, 20, 20), (0, menuh/2), (menuw, menuh/2), width = 6)
-            pg.draw.line(window, (127, 127, 127), (0, menuh/2), (menuw, menuh/2), width = 4)
-            pg.draw.line(window, (180, 180, 180), (0, menuh/2), (menuw, menuh/2), width = 2)
             pg.draw.line(window, (20, 20, 20), (menuw/2, 0), (menuw/2, menuh), width = 6)
+            pg.draw.line(window, (127, 127, 127), (0, menuh/2), (menuw, menuh/2), width = 4)
             pg.draw.line(window, (127, 127, 127), (menuw/2, 0), (menuw/2, menuh), width = 4)
+            pg.draw.line(window, (180, 180, 180), (0, menuh/2), (menuw, menuh/2), width = 2)
             pg.draw.line(window, (180, 180, 180), (menuw/2, 0), (menuw/2, menuh), width = 2)
+            
+            window.blit(logo, (0, menuh - logo.get_height()))
             
             if orientation == 0:
                 eee.blit(window, (0, 0))
@@ -140,7 +143,7 @@ class Menu():
         self.g4 = game4
         self.window = pg.surface.Surface((menuw, menuh))
         self.windowr = pg.display.set_mode((menuw, menuh) if orientation <= 1 else (menuh, menuw), (pg.NOFRAME * (not frame)) | pg.SCALED | (pg.FULLSCREEN * fullscreen), vsync=vsync)
-        pg.display.set_caption("My Multicade")
+        pg.display.set_caption("My Multicade (4-in-1)")
         self.window.fill((0, 0, 0))
     
     def menu(self):
@@ -221,10 +224,10 @@ class Menu():
             
             self.window.blit(blend5, (0, 0))
             pg.draw.line(self.window, (20, 20, 20), (0, menuh/2), (menuw, menuh/2), width = 6)
-            pg.draw.line(self.window, (127, 127, 127), (0, menuh/2), (menuw, menuh/2), width = 4)
-            pg.draw.line(self.window, (180, 180, 180), (0, menuh/2), (menuw, menuh/2), width = 2)
             pg.draw.line(self.window, (20, 20, 20), (menuw/2, 0), (menuw/2, menuh), width = 6)
+            pg.draw.line(self.window, (127, 127, 127), (0, menuh/2), (menuw, menuh/2), width = 4)
             pg.draw.line(self.window, (127, 127, 127), (menuw/2, 0), (menuw/2, menuh), width = 4)
+            pg.draw.line(self.window, (180, 180, 180), (0, menuh/2), (menuw, menuh/2), width = 2)
             pg.draw.line(self.window, (180, 180, 180), (menuw/2, 0), (menuw/2, menuh), width = 2)
             self.window.blit(name1, (get_between(name1xs, 10, pt.easeInQuint(clamp(current-startt, 0, anim_length)/anim_length)), 26))
             self.window.blit(name3, (get_between(name1xs, 10, pt.easeInQuint(clamp(current-startt, 0, anim_length)/anim_length)), menuh - name3.get_height() - 60))
@@ -244,6 +247,8 @@ class Menu():
                 else:
                     sur1 = timernums[0]
                     self.window.blit(sur1, (round(menuw/2-sur1.get_width()/2), 8))
+            
+            self.window.blit(logo, (0, menuh - logo.get_height()))
             
             if orientation == 0:
                 self.windowr.blit(self.window, (0, 0))
