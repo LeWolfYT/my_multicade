@@ -1,6 +1,7 @@
 import pytweening as pt
-import pygame as pg
+import threading as th
 import keyboard as k
+import pygame as pg
 import time
 import math
 import os
@@ -21,6 +22,9 @@ menuw = 224 #generally, you want to set these to the resolution of your monitor,
 menuh = 288 #fun fact! more games use 224x256, Namco woke up feeling different and decided to use 224x288 for a ton of games
 anim_length = 2 #this one is for the names
 anim_lengthb = 0.5 #this one is for the selection
+counter = 0 #time to count, 0 = infinite
+bgm_looped = True #if false, use bgm.wav. if true, use intro.wav and loop.wav
+music_intro = True #only used when bgm_looped is true
 vsync = True
 frame = True
 fullscreen = False
@@ -39,9 +43,26 @@ credit = pg.mixer.Sound(os.path.join(assets_path, "credit.wav")) #here too (inse
 choose = pg.mixer.Sound(os.path.join(assets_path, "choose.wav")) #don't forget here (choose game sound)
 launch = pg.mixer.Sound(os.path.join(assets_path, "launch.wav")) #and here (game launch sound)
 
+if bgm_looped:
+    intro = pg.mixer.Sound(os.path.join(assets_path, "intro.wav")) #here...
+    loop = pg.mixer.Sound(os.path.join(assets_path, "loop.wav")) #right here...
+
+global playing
+playing = None
+
 timernums = []
 for i in range(10):
     timernums.append(pg.image.load(os.path.join(timerdir, f"timer{i}.png")))
+
+def bgm_loop():
+    ee = intro.play()
+    while ee.get_busy():
+        pass
+    try:
+        global playing
+    except:
+        pass
+    playing = loop.play(-1)
 
 def wait_for_start(window: pg.surface.Surface, eee):
     while not k.is_pressed(36): #put in your condition for getting the start key or button or something
@@ -125,9 +146,13 @@ class Menu():
     def menu(self):
         if not wait_for_start(self.window, self.windowr):
             return
-        pg.mixer.music.load(music)
-        pg.mixer.music.play()
-        pg.mixer.music.set_volume(2.5)
+        playing = None
+        if not bgm_looped:
+            pg.mixer.music.load(music)
+            pg.mixer.music.play()
+        else:
+            bgmth = th.Thread(target=bgm_loop)
+            bgmth.start()
         bar_x = menuw/2
         bar_origin = menuw/2
         target1 = round(menuw/4)
@@ -135,9 +160,23 @@ class Menu():
         startt = time.time()
         sel = 0
         anim_startb = 0
+        spaghet = False
         
         name1xs = -name1.get_width()
         name2xs = menuw
+        
+        def pl():
+                launch.play()
+                if sel == 1:
+                    os.system(f"{mame_path} {self.g1.machine} -skip_gameinfo -ui simple")
+                elif sel == 2:
+                    os.system(f"{mame_path} {self.g2.machine} -skip_gameinfo -ui simple")
+                else:
+                    if round(time.time()) % 2 == 0:
+                        os.system(f"{mame_path} {self.g1.machine} -skip_gameinfo -ui simple")
+                    else:
+                        os.system(f"{mame_path} {self.g2.machine} -skip_gameinfo -ui simple")
+                return True
         
         while True:
             for event in pg.event.get():
@@ -155,13 +194,15 @@ class Menu():
                         bar_origin = bar_x
                         choose.play()
                         anim_startb = time.time()
+                    elif event.key == pg.K_RETURN and sel != 0 and counter == 0:
+                        spaghet = True
             if sel == 1:
                 bar_x = get_between(bar_origin, target2, pt.easeInOutQuad(clamp(time.time()-anim_startb, 0, anim_lengthb)/anim_lengthb))
             elif sel == 2:
                 bar_x = get_between(bar_origin, target1, pt.easeInOutQuad(clamp(time.time()-anim_startb, 0, anim_lengthb)/anim_lengthb))
             mask1, mask2 = generate_masks(bar_x)
             current = time.time()
-            timer = 20-abs(math.ceil(startt-current))
+            timer = counter-abs(math.ceil(startt-current))
             
             blend1 = pg.surface.Surface((menuw, menuh))
             blend2 = pg.surface.Surface((menuw, menuh))
@@ -184,18 +225,19 @@ class Menu():
             self.window.blit(name1, (get_between(name1xs, 10, pt.easeInQuint(clamp(current-startt, 0, anim_length)/anim_length)), 50))
             self.window.blit(name2, (get_between(name2xs, menuw - 10 - name2.get_width(), pt.easeInQuint(clamp(current-startt, 0, anim_length)/anim_length)), menuh - 50 - name2.get_height()))
         
-            if timer > 0:
-                if len(str(timer)) == 2:
-                    sur1 = timernums[int(str(timer)[0])]
-                    sur2 = timernums[int(str(timer)[1])]
-                    self.window.blit(sur1, (menuw/2-sur1.get_width()-1, 8))
-                    self.window.blit(sur2, (menuw/2+1, 8))
-                elif len(str(timer)) == 1:
-                    sur1 = timernums[int(str(timer)[0])]
+            if counter != 0:
+                if timer > 0:
+                    if len(str(timer)) == 2:
+                        sur1 = timernums[int(str(timer)[0])]
+                        sur2 = timernums[int(str(timer)[1])]
+                        self.window.blit(sur1, (menuw/2-sur1.get_width()-1, 8))
+                        self.window.blit(sur2, (menuw/2+1, 8))
+                    elif len(str(timer)) == 1:
+                        sur1 = timernums[int(str(timer)[0])]
+                        self.window.blit(sur1, (round(menuw/2-sur1.get_width()/2), 8))
+                else:
+                    sur1 = timernums[0]
                     self.window.blit(sur1, (round(menuw/2-sur1.get_width()/2), 8))
-            else:
-                sur1 = timernums[0]
-                self.window.blit(sur1, (round(menuw/2-sur1.get_width()/2), 8))
             
             if orientation == 0:
                 self.windowr.blit(self.window, (0, 0))
@@ -207,18 +249,15 @@ class Menu():
                 self.windowr.blit(pg.transform.rotate(self.window, 270), (0, 0))
             
             pg.display.flip()
-            if timer <= -0.5:
-                launch.play()
-                if sel == 1:
-                    os.system(f"{mame_path} {self.g1.machine} -skip_gameinfo -ui simple")
-                elif sel == 2:
-                    os.system(f"{mame_path} {self.g2.machine} -skip_gameinfo -ui simple")
-                else:
-                    if round(time.time()) % 2 == 0:
-                        os.system(f"{mame_path} {self.g1.machine} -skip_gameinfo -ui simple")
+            if timer <= -0.5 and counter != 0:
+                return pl()
+            elif counter == 0:
+                if spaghet:
+                    if bgm_looped:
+                        playing.stop()
                     else:
-                        os.system(f"{mame_path} {self.g2.machine} -skip_gameinfo -ui simple")
-                return True
+                        pg.mixer.music.stop()
+                    return pl()
 
 game1 = GameItem(bg1, machine1)
 game2 = GameItem(bg2, machine2)
