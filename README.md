@@ -14,9 +14,6 @@ a 2-in-1 arcade themed MAME frontend inspired by the iCade 60-in-1 series
 10. You have to CD into the MAME directory by launching in some scenarios.
 11. Launch the program!
 
-# NOTICE
-The current build is NON-FUNCTIONAL!
-
 # FOR ARCADE OPERATORS
 Sadly, I don't know of any ways to link this program to arcade hardware. However, if you do know, feel free to contribute!
 You'll have to configure MAME yourself, sadly.

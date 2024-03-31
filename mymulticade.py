@@ -54,16 +54,6 @@ timernums = []
 for i in range(10):
     timernums.append(pg.image.load(os.path.join(timerdir, f"timer{i}.png")))
 
-def bgm_loop():
-    ee = intro.play()
-    while ee.get_busy():
-        pass
-    try:
-        global playing
-    except:
-        pass
-    playing = loop.play(-1)
-
 def wait_for_start(window: pg.surface.Surface, eee):
     while not k.is_pressed(36): #put in your condition for getting the start key or button or something
         for event in pg.event.get():
@@ -150,9 +140,6 @@ class Menu():
         if not bgm_looped:
             pg.mixer.music.load(music)
             pg.mixer.music.play()
-        else:
-            bgmth = th.Thread(target=bgm_loop)
-            bgmth.start()
         bar_x = menuw/2
         bar_origin = menuw/2
         target1 = round(menuw/4)
@@ -161,6 +148,7 @@ class Menu():
         sel = 0
         anim_startb = 0
         spaghet = False
+        playing1 = 0
         
         name1xs = -name1.get_width()
         name2xs = menuw
@@ -249,6 +237,15 @@ class Menu():
                 self.windowr.blit(pg.transform.rotate(self.window, 270), (0, 0))
             
             pg.display.flip()
+            if playing1 == 0:
+                playing = intro.play()
+                playing1 = 1
+            if playing1 == 1:
+                if playing.get_busy():
+                    pass
+                else:
+                    playing = loop.play(-1)
+                    playing1 = 2
             if timer <= -0.5 and counter != 0:
                 return pl()
             elif counter == 0:
